@@ -18,9 +18,40 @@ export default function SmartCampusNavigator() {
   const [activeView, setActiveView] = useState<"map" | "details" | "routes" | "history">("map")
   const [selectedLocation, setSelectedLocation] = useState<string | null>(null)
   const [userRole, setUserRole] = useState<"student" | "staff" | "visitor">("student")
+  const [savedRoutes, setSavedRoutes] = useState<Array<{
+    id: string
+    from: string
+    to: string
+    path: string[]
+    timestamp: number
+  }>>([])
   const isDesktop = useMediaQuery("(min-width: 1024px)")
   const { toast } = useToast()
   const { crowdUpdates } = useCrowdData()
+
+  // Load saved routes from localStorage on mount
+  useEffect(() => {
+    const savedRoutesFromStorage = localStorage.getItem('savedRoutes')
+    if (savedRoutesFromStorage) {
+      setSavedRoutes(JSON.parse(savedRoutesFromStorage))
+    }
+  }, [])
+
+  // Handle new route save
+  const handleSaveRoute = (route: {
+    id: string
+    from: string
+    to: string
+    path: string[]
+    timestamp: number
+  }) => {
+    setSavedRoutes(prev => [...prev, route])
+    toast({
+      title: "Route Saved",
+      description: `Route from ${route.from} to ${route.to} has been saved`,
+      duration: 3000,
+    })
+  }
 
   // Auto-open sidebar on desktop
   useEffect(() => {
@@ -64,6 +95,7 @@ export default function SmartCampusNavigator() {
         userRole={userRole}
         onRoleChange={setUserRole}
         onNavigateToLocation={setSelectedLocation}
+        savedRoutes={savedRoutes}
       />
 
       {/* Main Content */}
@@ -75,7 +107,12 @@ export default function SmartCampusNavigator() {
         </div>
 
         {/* Map Container */}
-        <MapContainer selectedLocation={selectedLocation} userRole={userRole} activeView={activeView} />
+        <MapContainer 
+          selectedLocation={selectedLocation} 
+          userRole={userRole} 
+          activeView={activeView}
+          onSaveRoute={handleSaveRoute}
+        />
       </main>
 
       {/* Footer */}

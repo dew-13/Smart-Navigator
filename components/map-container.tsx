@@ -333,7 +333,7 @@ const locations: Location[] = [
                     <Button
                       variant={selectedLocation === location.id ? "default" : "outline"}
                       size="icon"
-                      className={`absolute h-10 w-10 rounded-full bg-white/95 hover:bg-white shadow-lg border-2 ${
+                      className={`absolute h-10 w-10 rounded-full bg-white hover:bg-white shadow-lg border-2 border-blue-500 ${
                         selectedLocation === location.id ? "ring-4 ring-primary ring-offset-2" : ""
                       } ${routeFrom === location.id ? "ring-4 ring-green-500 ring-offset-2" : ""} ${
                         routeTo === location.id ? "ring-4 ring-red-500 ring-offset-2" : ""
@@ -349,7 +349,7 @@ const locations: Location[] = [
                       <span
                         className={`absolute right-0 top-0 h-3 w-3 rounded-full border border-white ${getCrowdLevelColor(location.id)}`}
                       ></span>
-                      <Map className="h-5 w-5 text-gray-700" />
+                      <Map className="h-5 w-5 text-gray-600" />
                       {location.id === "zenith" && (
                         <span className="absolute -bottom-1 -right-1 text-xs font-bold text-primary bg-white rounded-full w-4 h-4 flex items-center justify-center">
                           6
@@ -358,9 +358,9 @@ const locations: Location[] = [
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent>
-                    <div className="text-xs max-w-[250px]">
-                      <p className="font-medium text-gray-900">{location.name}</p>
-                      <p className="text-gray-700">{location.description}</p>
+                    <div className="text-xs max-w-[250px] group">
+                      <p className="font-medium text-black">{location.name}</p><br/>
+                      <p className="text-gray-600">{location.description}</p>
                       {location.floors && (
                         <div className="mt-2">
                           <p className="font-medium">Floors:</p>
@@ -373,14 +373,16 @@ const locations: Location[] = [
                       )}
                       <div className="flex items-center gap-1 mt-1">
                         <CrowdLevelIndicator level={crowdData[location.id]?.level || "low"} />
-                        <span>{crowdData[location.id]?.count || Math.floor(Math.random() * 50)} people</span>
+                        <span className="text-black group-hover:text-black transition-colors">
+                          {crowdData[location.id]?.count || Math.floor(Math.random() * 50)} people
+                        </span>
                       </div>
-                      <p className="text-xs mt-1 text-gray-700">
+                      <p className="text-xs mt-1 text-gray-900"><br/>
                         <span className="font-medium">Now: </span>
                         {location.currentEvent}
                       </p>
                       {routeFrom && !routeTo && location.id !== routeFrom && (
-                        <p className="text-xs mt-1 text-blue-600 font-medium">Click to set as destination</p>
+                        <p className="text-xs mt-1 text-gray-700 font-medium">Click to set as destination</p>
                       )}
                     </div>
                   </TooltipContent>
@@ -450,7 +452,7 @@ const locations: Location[] = [
           )}
 
           {/* Context-aware recommendation */}
-          <Card className="absolute bottom-20 left-4 right-4 p-3 md:left-auto md:right-4 md:w-80 z-30 bg-white/95 backdrop-blur-sm">
+          <Card className="absolute bottom-5 left-4 right-4 p-3 md:left-auto md:right-4 md:w-80 z-30 bg-white/95 backdrop-blur-sm">
             <div className="flex items-start gap-2">
               <Info className="h-5 w-5 text-primary shrink-0 mt-0.5" />
               <div>
@@ -483,7 +485,7 @@ const locations: Location[] = [
 
           {/* Crowd Updates Notification */}
           {crowdUpdates.length > 0 && (
-            <div className="absolute top-20 left-1/2 transform -translate-x-1/2 z-40">
+            <div className="absolute top-3 left-1/2 transform -translate-x-1/2 z-40">
               <Card className="bg-white/95 backdrop-blur-sm p-2 shadow-lg">
                 <div className="flex items-center gap-2">
                   <Users className="h-4 w-4 text-primary" />

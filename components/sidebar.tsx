@@ -192,7 +192,7 @@ export function Sidebar({
       </div>
 
       <Tabs defaultValue="explore" className="h-[calc(100%-64px)]">
-        <TabsList className="grid w-[304] grid-cols-5 p-1 mx-4 mt-4">
+        <TabsList className="grid w-[304] grid-cols-4 p-1 mx-4 mt-4">
           <TabsTrigger value="explore" onClick={() => setActiveView("map")}>Explore</TabsTrigger>
           <TabsTrigger value="routes" onClick={() => setActiveView("routes")}>Routes</TabsTrigger>
           <TabsTrigger value="parking">Parking</TabsTrigger>

@@ -35,7 +35,7 @@ export function RouteOptimizer({ locations, crowdData, onRouteSelect }: RouteOpt
           type: "Fastest Route",
           description: "Direct path with minimal stops",
           icon: <Route className="h-4 w-4" />,
-          color: "bg-blue-100 text-blue-800",
+          color: "bg-blue-100 text-gray-800",
         })
         break
       case "least-crowded":
