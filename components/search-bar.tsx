@@ -19,7 +19,7 @@ export function SearchBar({ onLocationSelect }: SearchBarProps) {
     { id: "gaff", name: "GAFF Library", category: "Academic" },
     { id: "sky", name: "SKY Classrooms", category: "Academic" },
     { id: "spencer", name: "SPENCER Classroom", category: "Academic" },
-    { id: "wulfrun", name: "WULFRUN Faculty", category: "Academic" },
+    { id: "wulfruna", name: "WULFRUNA Faculty", category: "Academic" },
     { id: "top", name: "TOP Building (Marine Engineering)", category: "Academic" },
     { id: "zenith", name: "ZENITH Building (6 Floors)", category: "Academic" },
 
@@ -29,7 +29,7 @@ export function SearchBar({ onLocationSelect }: SearchBarProps) {
     { id: "fireTraining", name: "Fire Training Simulator", category: "Training" },
 
     // Technology & Labs
-    { id: "dallan", name: "DALLAN IT Labs", category: "Technology" },
+    { id: "dalian", name: "DALIAN IT Labs", category: "Technology" },
 
     // Workshops
     { id: "hanger", name: "HANGER Workshop", category: "Workshop" },

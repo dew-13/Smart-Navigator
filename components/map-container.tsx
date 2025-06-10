@@ -17,6 +17,8 @@ import {
   Info,
   Layers,
   Route,
+  Trash2,
+  Save,
 } from "lucide-react"
 import { useCrowdData } from "@/hooks/use-crowd-data"
 import { CrowdLevelIndicator } from "@/components/crowd-level-indicator"
@@ -25,6 +27,16 @@ interface MapContainerProps {
   selectedLocation: string | null
   userRole: "student" | "staff" | "visitor"
   activeView: "map" | "details" | "routes" | "history"
+  routeFromProp?: string | null
+  routeToProp?: string | null
+  onSaveRoute?: (route: {
+    id: string
+    from: string
+    to: string
+    path: string[]
+    name: string
+    timestamp: number
+  }) => void
 }
 
 interface Location {
@@ -44,7 +56,42 @@ interface Location {
   }>
 }
 
-export function MapContainer({ selectedLocation, userRole, activeView }: MapContainerProps) {
+// Updated CINEC Campus locations with new buildings
+const locations: Location[] = [
+  { id: "mainEntrance", name: "Main Entrance", x: 28, y: 84, description: "Main gate access", openingHours: "24/7", currentEvent: "", category: "Access", connections: ["carPark", "fore", "main", "dalian"] },
+  { id: "subEntrance", name: "Small Entrance", x: 48, y: 84, description: "Sub gate access", openingHours: "24/7", currentEvent: "", category: "Access", connections: ["carPark", "main", "dalian"] },
+  { id: "carPark", name: "Car Park", x: 45, y: 95, description: "Parking for staff/students", openingHours: "24/7", currentEvent: "", category: "Facilities", connections: ["mainEntrance", "subEntrance"] },
+  { id: "studentRegistration", name: "Student Registration", x: 39, y: 60, description: "Student admission and services", openingHours: "8:00 - 16:00", currentEvent: "Registration", category: "Administrative", connections: ["main", "hanger", "storm", "fore", "basketballCourt", "gaff"] },
+  { id: "main", name: "MAIN", x: 39, y: 68, description: "Reception – Finance – Auditorium", openingHours: "8:00 - 16:30", currentEvent: "Admin services", category: "Administrative", connections: ["studentRegistration", "dalian", "spencer", "storm", "fore", "subEntrance", "mainEntrance"] },
+  { id: "hanger", name: "HANGER", x: 42, y: 5, description: "Aviation Workshop – Automobile Workshops", openingHours: "9:00 - 16:00", currentEvent: "Training", category: "Workshop", connections: ["volleyballCourt", "hullock", "mizzen"] },
+  { id: "workshop", name: "Workshop", x: 59, y: 23, description: "Welding & mechanical labs", openingHours: "9:00 - 16:00", currentEvent: "Practice", category: "Workshop", connections: ["cafe2", "hullock", "gaff", "facultyAviation", "studentArea", "top", "bookshop"] },
+  { id: "storm", name: "STORM", x: 13, y: 40, description: "Café / Restaurant / Bakery", openingHours: "7:00 - 20:00", currentEvent: "Lunch rush", category: "Dining", connections: ["main", "fore", "mizzen", "hanger", "studentRegistration", "basketballCourt", "swimmingPool"] },
+  { id: "fore", name: "FORE", x: 12, y: 60, description: "Engine & Bridge Simulator & Liquid Cargo Simulator", openingHours: "9:00 - 16:00", currentEvent: "Simulator session", category: "Maritime", connections: ["storm", "mizzen", "mainEntrance", "basketballCourt", "swimmingPool", "studentRegistration", "main"] },
+  { id: "mizzen", name: "MIZZEN", x: 30, y: 20, description: "Hostel", openingHours: "24/7", currentEvent: "Residential", category: "Accommodation", connections: ["storm", "fore", "basketballCourt", "volleyballCourt", "hanger"] },
+  { id: "basketballCourt", name: "Basketball Court", x: 37, y: 45, description: "Outdoor court", openingHours: "6:00 - 18:00", currentEvent: "", category: "Recreation", connections: ["mizzen", "volleyballCourt", "gaff", "storm", "fore", "studentRegistration"] },
+  { id: "swimmingPool", name: "Swimming Pool", x: 4, y: 42, description: "Swimming pool – Gymnasium – Laundry", openingHours: "6:00 - 18:00", currentEvent: "", category: "Recreation", connections: ["storm", "mainEntrance", "fore"] },
+  { id: "volleyballCourt", name: "Volleyball Court", x: 43, y: 25, description: "Open volleyball space", openingHours: "6:00 - 18:00", currentEvent: "", category: "Recreation", connections: ["basketballCourt", "hanger", "mizzen"] },
+  { id: "hullock", name: "HULLOCK", x: 52, y: 10, description: "Welding Workshop – Machine Shop – Engine Fitting Shops – Fitting Shop – Seaman Center – Drawing / Chart Room", openingHours: "8:00 - 16:00", currentEvent: "Training", category: "Workshop", connections: ["hanger", "gaff", "top", "cafe2", "workshop"] },
+  { id: "gaff", name: "GAFF", x: 51, y: 42, description: "Library – Generator Room – Electrical Workshop – Control Lab – High Voltage Lab – Electro – Pneumatic – Hydraulic Lab – Examination Center", openingHours: "9:00 - 17:00", currentEvent: "Quiet study", category: "Academic", connections: ["studentRegistration", "hullock", "top", "sky", "basketballCourt", "workshop"] },
+  { id: "bookshop", name: "Bookshop", x: 68, y: 44, description: "Bookshop with stationery and photocopy, Printout, etc.", openingHours: "9:00 - 16:00", currentEvent: "Lectures", category: "Academic", connections: ["gaff", "top", "workshop", "cafe2", "studentArea", "studentCommon"] },
+  { id: "top", name: "TOP", x: 65, y: 44, description: "Office of Faculty of Marine Engineering – Faculty of Maritime Science Department of Safety & Survival Training – Printing Room", openingHours: "9:00 - 16:00", currentEvent: "Lectures", category: "Academic", connections: ["gaff", "bookshop", "sky", "workshop", "cafe2", "studentArea"] },
+  { id: "sky", name: "Sky", x: 61, y: 54, description: "Class Rooms", openingHours: "8:00 - 17:00", currentEvent: "Class in session", category: "Academic", connections: ["top", "spencer", "gaff"] },
+  { id: "spencer", name: "Spencer", x: 61, y: 64, description: "Class Room", openingHours: "8:00 - 17:00", currentEvent: "Lecture", category: "Academic", connections: ["sky", "dalian", "main", "wulfruna"] },
+  { id: "dalian", name: "Dalian", x: 61, y: 75, description: "IT labs – Marine Electronics & Radio Communication LAB", openingHours: "8:00 - 17:00", currentEvent: "Lab session", category: "Technology", connections: ["spencer", "subEntrance", "wulfruna", "main"] },
+  { id: "zenith", name: "Zenith", x: 91, y: 10, description: "Lecture Halls for Faculty of Management & Social Science, Faculty of Engineering & Technology,  and IT Lab 6", openingHours: "8:00 - 17:00", currentEvent: "Class ongoing", category: "Academic", floors: [{ floor: 1, description: "Classrooms", capacity: 150 }, { floor: 6, description: "IT Lab", capacity: 80 }], connections: ["yogaHut", "shipInCampus", "studentCommon", "cafe2", "dalian", "wulfruna"] },
+  { id: "wulfruna", name: "Wulfruna", x: 80, y: 60, description: "Faculty of Management & Social Science, Faculty of Engineering & Technology, Civil Engineering Lab, Mechanical – Thermodynamic and Fluid Lab, Basic Electronic Lab, Engineering Simulation Lab, Communication Engineering Lab, Micro Electronic Lab, CINEC/Orange Research Center, CINEC/MAS Research Hub", openingHours: "8:00 - 17:00", currentEvent: "Class ongoing", category: "Academic", floors: [{ floor: 4, description: "Classrooms", capacity: 150 }, ], connections: ["dalian", "zenith", "studentCommon"] },
+  { id: "cafe2", name: "Cafe 2", x: 65, y: 4, description: "Additional dining", openingHours: "7:30 - 18:00", currentEvent: "Snack break", category: "Dining", connections: ["workshop", "yogaHut", "facultyAviation"] },
+  { id: "studentArea", name: "Student Area", x: 73, y: 23, description: "Recreation zone", openingHours: "24/7", currentEvent: "Group activities", category: "Student Life", connections: ["cafe2", "studentCommon", "facultyAviation", "workshop", "yogaHut"] },
+  { id: "studentCommon", name: "Student Common Faculty", x: 79, y: 25, description: "Student common spaces", openingHours: "24/7", currentEvent: "Relaxation", category: "Student Life", connections: ["studentArea", "yogaHut", "zenith", "wulfruna", "bookshop"] },
+  { id: "yogaHut", name: "Yoga – Hut", x: 79, y: 8, description: "Wellness & meditation", openingHours: "6:00 - 18:00", currentEvent: "Yoga session", category: "Wellness", connections: ["studentArea", "facultyAviation", "zenith", "cafe2"] },
+  { id: "facultyAviation", name: "Faculty of Aviation", x: 73, y: 13, description: "Aviation classes", openingHours: "8:00 - 16:00", currentEvent: "Training", category: "Academic", connections: ["studentArea", "workshop", "cafe2", "yogaHut"] },
+  { id: "shipInCampus", name: "Ship-in-campus", x: 98, y: 5, description: "Training ship for marine studies", openingHours: "8:00 - 17:00", currentEvent: "Hands-on training", category: "Maritime", connections: ["zenith"] },
+  { id: "motorcyclePark", name: "Motor Cycle Parking", x: 20, y: 95, description: "Motor cycle parking is reserved infront of car park", openingHours: "24/7", currentEvent: "", category: "Access", connections: ["carPark", "mainEntrance", "subEntrance"] }  
+];
+export { locations };
+export type { Location };
+
+export function MapContainer({ selectedLocation, userRole, activeView, routeFromProp, routeToProp, onSaveRoute }: MapContainerProps) {
   const [isLoading, setIsLoading] = useState(true)
   // const [weatherCondition, setWeatherCondition] = useState<"sunny" | "rainy" | "cloudy">("sunny")
   const [timeOfDay, setTimeOfDay] = useState<"morning" | "afternoon" | "evening">("morning")
@@ -55,6 +102,8 @@ export function MapContainer({ selectedLocation, userRole, activeView }: MapCont
   const [optimizedRoute, setOptimizedRoute] = useState<string[] | null>(null)
   const mapRef = useRef<HTMLDivElement>(null)
   const [mapZoom, setMapZoom] = useState(1)
+  const [showSaveInput, setShowSaveInput] = useState(false)
+  const [customRouteName, setCustomRouteName] = useState("")
 
   // Get crowd data from our hook
   const { crowdData, crowdUpdates } = useCrowdData()
@@ -89,40 +138,6 @@ export function MapContainer({ selectedLocation, userRole, activeView }: MapCont
 
     return () => clearInterval(interval)
   }, []) */
-
-  // Updated CINEC Campus locations with new buildings
-const locations: Location[] = [
-  { id: "mainEntrance", name: "Main Entrance", x: 28, y: 85, description: "Main gate access", openingHours: "24/7", currentEvent: "", category: "Access", connections: ["carPark", "fore", "main", "dalian"] },
-  { id: "subEntrance", name: "Small Entrance", x: 48, y: 85, description: "Sub gate access", openingHours: "24/7", currentEvent: "", category: "Access", connections: ["carPark", "main", "dalian"] },
-  { id: "carPark", name: "Car Park", x: 45, y: 95, description: "Parking for staff/students", openingHours: "24/7", currentEvent: "", category: "Facilities", connections: ["mainEntrance", "subEntrance"] },
-  { id: "studentRegistration", name: "Student Registration", x: 40, y: 60, description: "Student admission and services", openingHours: "8:00 - 16:00", currentEvent: "Registration", category: "Administrative", connections: ["main", "hanger", "storm", "fore", "basketballCourt", "gaff"] },
-  { id: "main", name: "MAIN", x: 40, y: 68, description: "Reception – Finance – Auditorium", openingHours: "8:00 - 16:30", currentEvent: "Admin services", category: "Administrative", connections: ["studentRegistration", "dalian", "spencer", "storm", "fore", "subEntrance", "mainEntrance"] },
-  { id: "hanger", name: "HANGER", x: 42, y: 5, description: "Aviation Workshop – Automobile Workshops", openingHours: "9:00 - 16:00", currentEvent: "Training", category: "Workshop", connections: ["volleyballCourt", "hullock", "mizzen"] },
-  { id: "workshop", name: "Workshop", x: 60, y: 20, description: "Welding & mechanical labs", openingHours: "9:00 - 16:00", currentEvent: "Practice", category: "Workshop", connections: ["cafe2", "hullock", "gaff", "facultyAviation", "studentArea", "top", "bookshop"] },
-  { id: "storm", name: "STORM", x: 15, y: 40, description: "Café / Restaurant / Bakery", openingHours: "7:00 - 20:00", currentEvent: "Lunch rush", category: "Dining", connections: ["main", "fore", "mizzen", "hanger", "studentRegistration", "basketballCourt", "swimmingPool"] },
-  { id: "fore", name: "FORE", x: 12, y: 60, description: "Engine & Bridge Simulator & Liquid Cargo Simulator", openingHours: "9:00 - 16:00", currentEvent: "Simulator session", category: "Maritime", connections: ["storm", "mizzen", "mainEntrance", "basketballCourt", "swimmingPool", "studentRegistration", "main"] },
-  { id: "mizzen", name: "MIZZEN", x: 30, y: 10, description: "Hostel", openingHours: "24/7", currentEvent: "Residential", category: "Accommodation", connections: ["storm", "fore", "basketballCourt", "volleyballCourt", "hanger"] },
-  { id: "basketballCourt", name: "Basketball Court", x: 37, y: 45, description: "Outdoor court", openingHours: "6:00 - 18:00", currentEvent: "", category: "Recreation", connections: ["mizzen", "volleyballCourt", "gaff", "storm", "fore", "studentRegistration"] },
-  { id: "swimmingPool", name: "Swimming Pool", x: 5, y: 45, description: "Swimming pool – Gymnasium – Laundry", openingHours: "6:00 - 18:00", currentEvent: "", category: "Recreation", connections: ["storm", "mainEntrance", "fore"] },
-  { id: "volleyballCourt", name: "Volleyball Court", x: 43, y: 25, description: "Open volleyball space", openingHours: "6:00 - 18:00", currentEvent: "", category: "Recreation", connections: ["basketballCourt", "hanger", "mizzen"] },
-  { id: "hullock", name: "HULLOCK", x: 52, y: 10, description: "Welding Workshop – Machine Shop – Engine Fitting Shops – Fitting Shop – Seaman Center – Drawing / Chart Room", openingHours: "8:00 - 16:00", currentEvent: "Training", category: "Workshop", connections: ["hanger", "gaff", "top", "cafe2", "workshop"] },
-  { id: "gaff", name: "GAFF", x: 52, y: 40, description: "Library – Generator Room – Electrical Workshop – Control Lab – High Voltage Lab – Electro – Pneumatic – Hydraulic Lab – Examination Center", openingHours: "9:00 - 17:00", currentEvent: "Quiet study", category: "Academic", connections: ["studentRegistration", "hullock", "top", "sky", "basketballCourt", "workshop"] },
-  { id: "bookshop", name: "Bookshop", x: 68, y: 44, description: "Bookshop with stationery and photocopy, Printout, etc.", openingHours: "9:00 - 16:00", currentEvent: "Lectures", category: "Academic", connections: ["gaff", "top", "workshop", "cafe2", "studentArea", "studentCommon"] },
-  { id: "top", name: "TOP", x: 65, y: 44, description: "Office of Faculty of Marine Engineering – Faculty of Maritime Science Department of Safety & Survival Training – Printing Room", openingHours: "9:00 - 16:00", currentEvent: "Lectures", category: "Academic", connections: ["gaff", "bookshop", "sky", "workshop", "cafe2", "studentArea"] },
-  { id: "sky", name: "Sky", x: 61, y: 54, description: "Class Rooms", openingHours: "8:00 - 17:00", currentEvent: "Class in session", category: "Academic", connections: ["top", "spencer", "gaff"] },
-  { id: "spencer", name: "Spencer", x: 61, y: 64, description: "Class Room", openingHours: "8:00 - 17:00", currentEvent: "Lecture", category: "Academic", connections: ["sky", "dalian", "main", "wulfruna"] },
-  { id: "dalian", name: "Dalian", x: 61, y: 75, description: "IT labs – Marine Electronics & Radio Communication LAB", openingHours: "8:00 - 17:00", currentEvent: "Lab session", category: "Technology", connections: ["spencer", "subEntrance", "wulfruna", "main"] },
-  { id: "zenith", name: "Zenith", x: 91, y: 10, description: "Lecture Halls for Faculty of Management & Social Science, Faculty of Engineering & Technology,  and IT Lab 6", openingHours: "8:00 - 17:00", currentEvent: "Class ongoing", category: "Academic", floors: [{ floor: 1, description: "Classrooms", capacity: 150 }, { floor: 6, description: "IT Lab", capacity: 80 }], connections: ["yogaHut", "shipInCampus", "studentCommon", "cafe2", "dalian", "wulfruna"] },
-  { id: "wulfruna", name: "Wulfruna", x: 81, y: 60, description: "Faculty of Management & Social Science, Faculty of Engineering & Technology, Civil Engineering Lab, Mechanical – Thermodynamic and Fluid Lab, Basic Electronic Lab, Engineering Simulation Lab, Communication Engineering Lab, Micro Electronic Lab, CINEC/Orange Research Center, CINEC/MAS Research Hub", openingHours: "8:00 - 17:00", currentEvent: "Class ongoing", category: "Academic", floors: [{ floor: 4, description: "Classrooms", capacity: 150 }, ], connections: ["dalian", "zenith", "studentCommon"] },
-  { id: "cafe2", name: "Cafe 2", x: 65, y: 4, description: "Additional dining", openingHours: "7:30 - 18:00", currentEvent: "Snack break", category: "Dining", connections: ["workshop", "yogaHut", "facultyAviation"] },
-  { id: "studentArea", name: "Student Area", x: 73, y: 23, description: "Recreation zone", openingHours: "24/7", currentEvent: "Group activities", category: "Student Life", connections: ["cafe2", "studentCommon", "facultyAviation", "workshop", "yogaHut"] },
-  { id: "studentCommon", name: "Student Common Faculty", x: 79, y: 25, description: "Student common spaces", openingHours: "24/7", currentEvent: "Relaxation", category: "Student Life", connections: ["studentArea", "yogaHut", "zenith", "wulfruna", "bookshop"] },
-  { id: "yogaHut", name: "Yoga – Hut", x: 79, y: 8, description: "Wellness & meditation", openingHours: "6:00 - 18:00", currentEvent: "Yoga session", category: "Wellness", connections: ["studentArea", "facultyAviation", "zenith", "cafe2"] },
-  { id: "facultyAviation", name: "Faculty of Aviation", x: 73, y: 13, description: "Aviation classes", openingHours: "8:00 - 16:00", currentEvent: "Training", category: "Academic", connections: ["studentArea", "workshop", "cafe2", "yogaHut"] },
-  { id: "shipInCampus", name: "Ship-in-campus", x: 98, y: 5, description: "Training ship for marine studies", openingHours: "8:00 - 17:00", currentEvent: "Hands-on training", category: "Maritime", connections: ["zenith"] }
-];
-
-
 
   // Route optimization algorithm using Dijkstra's algorithm
   const findOptimalRoute = (from: string, to: string): string[] | null => {
@@ -255,6 +270,35 @@ const locations: Location[] = [
     }
   }
 
+  // Listen for programmatic route planning from sidebar
+  useEffect(() => {
+    if (routeFromProp && routeToProp && routeFromProp !== routeToProp) {
+      setRouteFrom(routeFromProp)
+      setRouteTo(routeToProp)
+      const route = findOptimalRoute(routeFromProp, routeToProp)
+      setOptimizedRoute(route)
+    } else if ((!routeFromProp && !routeToProp) || (routeFromProp === '' && routeToProp === '')) {
+      setRouteFrom(null)
+      setRouteTo(null)
+      setOptimizedRoute(null)
+    }
+  }, [routeFromProp, routeToProp])
+
+  const handleSaveRoute = () => {
+    if (onSaveRoute && routeFrom && routeTo && optimizedRoute) {
+      onSaveRoute({
+        id: Date.now().toString(),
+        from: routeFrom,
+        to: routeTo,
+        path: optimizedRoute,
+        name: customRouteName || `Route from ${locations.find(l => l.id === routeFrom)?.name} to ${locations.find(l => l.id === routeTo)?.name}`,
+        timestamp: Date.now(),
+      });
+      setShowSaveInput(false);
+      setCustomRouteName("");
+    }
+  };
+
   return (
     <div className="relative h-full w-full">
       {isLoading ? (
@@ -294,7 +338,7 @@ const locations: Location[] = [
                         y1={`${currentLoc.y}%`}
                         x2={`${nextLoc.x}%`}
                         y2={`${nextLoc.y}%`}
-                        stroke="#3b82f6"
+                        stroke="#ff9800"
                         strokeWidth="4"
                         strokeDasharray="8,4"
                         markerEnd="url(#arrowhead)"
@@ -304,7 +348,7 @@ const locations: Location[] = [
                   {/* Arrow marker definition */}
                   <defs>
                     <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
-                      <polygon points="0 0, 10 3.5, 0 7" fill="#3b82f6" />
+                      <polygon points="0 0, 10 3.5, 0 7" fill="#ff9800" />
                     </marker>
                   </defs>
                 </g>
@@ -360,7 +404,23 @@ const locations: Location[] = [
                   <TooltipContent>
                     <div className="text-xs max-w-[250px] group">
                       <p className="font-medium text-black">{location.name}</p><br/>
-                      <p className="text-gray-600">{location.description}</p>
+                      <p className="text-gray-600">{location.description}</p><br/>
+                      <p className="text-xs mt-1 text-gray-900">
+                        <span className="font-medium">Opening Hours: </span>
+                        {location.openingHours}
+                      </p>
+                      {['zenith', 'wulfruna'].includes(location.id) && (
+                        <p className="text-xs mt-1 text-gray-900">
+                          <Wheelchair className="inline-block h-2 w-4 mr-1" />
+                          Elevator available
+                        </p>
+                      )}
+                      {['gaff', 'main', 'studentRegistration'].includes(location.id) && (
+                        <p className="text-xs mt-1 text-purple-700 flex items-center gap-1">
+                          <span className="inline-block w-3 h-3 rounded-full bg-purple-400 mr-1"></span>
+                          Quiet Zone
+                        </p>
+                      )}
                       {location.floors && (
                         <div className="mt-2">
                           <p className="font-medium">Floors:</p>
@@ -435,18 +495,58 @@ const locations: Location[] = [
                     </p>
                   </div>
                 )}
+                <div className="flex gap-2 mt-2">
+                  {!showSaveInput && (
+                    <>
+                <Button
+                        size="sm"
+                        className="bg-green-600 text-white hover:bg-green-700"
+                        onClick={() => setShowSaveInput(true)}
+                      >
+                        <Save className="h-4 w-4 mr-1" />
+                        Save Route
+                      </Button>
                 <Button
                   size="sm"
-                  variant="outline"
+                        className="bg-red-500 text-white hover:bg-red-600"
                   onClick={() => {
-                    setRouteFrom(null)
-                    setRouteTo(null)
-                    setOptimizedRoute(null)
+                          setRouteFrom(null);
+                          setRouteTo(null);
+                          setOptimizedRoute(null);
                   }}
-                  className="w-full mt-2"
-                >
+                      >
+                        <Trash2 className="h-4 w-4 mr-1" />
                   Clear Route
                 </Button>
+                    </>
+                  )}
+                  {showSaveInput && (
+                    <div className="flex flex-col gap-2 w-full">
+                      <input
+                        className="border rounded px-2 py-1 text-xs"
+                        placeholder="Enter route name"
+                        value={customRouteName}
+                        onChange={e => setCustomRouteName(e.target.value)}
+                      />
+                      <div className="flex gap-2">
+                        <Button
+                          size="sm"
+                          className="bg-blue-600 text-white hover:bg-blue-700 mt-1"
+                          onClick={handleSaveRoute}
+                        >
+                          Done
+                        </Button>
+                        <Button
+                          size="sm"
+                          className="bg-gray-300 text-gray-800 hover:bg-gray-400 mt-1"
+                          onClick={() => { setShowSaveInput(false); setCustomRouteName(""); }}
+                        >
+                          Cancel
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
             </Card>
           )}

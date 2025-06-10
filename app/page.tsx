@@ -23,8 +23,11 @@ export default function SmartCampusNavigator() {
     from: string
     to: string
     path: string[]
+    name: string
     timestamp: number
   }>>([])
+  const [routeFrom, setRouteFrom] = useState<string | null>(null)
+  const [routeTo, setRouteTo] = useState<string | null>(null)
   const isDesktop = useMediaQuery("(min-width: 1024px)")
   const { toast } = useToast()
   const { crowdUpdates } = useCrowdData()
@@ -43,14 +46,19 @@ export default function SmartCampusNavigator() {
     from: string
     to: string
     path: string[]
+    name: string
     timestamp: number
   }) => {
     setSavedRoutes(prev => [...prev, route])
     toast({
       title: "Route Saved",
-      description: `Route from ${route.from} to ${route.to} has been saved`,
+      description: `Route '${route.name}' has been saved`,
       duration: 3000,
     })
+  }
+
+  const handleDeleteRoute = (id: string | number) => {
+    setSavedRoutes(prev => prev.filter(route => route.id !== id))
   }
 
   // Auto-open sidebar on desktop
@@ -96,6 +104,11 @@ export default function SmartCampusNavigator() {
         onRoleChange={setUserRole}
         onNavigateToLocation={setSelectedLocation}
         savedRoutes={savedRoutes}
+        routeFrom={routeFrom}
+        routeTo={routeTo}
+        setRouteFrom={setRouteFrom}
+        setRouteTo={setRouteTo}
+        onDeleteRoute={handleDeleteRoute}
       />
 
       {/* Main Content */}
@@ -112,6 +125,8 @@ export default function SmartCampusNavigator() {
           userRole={userRole} 
           activeView={activeView}
           onSaveRoute={handleSaveRoute}
+          routeFromProp={routeFrom}
+          routeToProp={routeTo}
         />
       </main>
 
