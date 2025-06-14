@@ -87,7 +87,7 @@ export function RoutesList({ routes, userRole, onLocationSelect, onFindRoute, fr
 
 
   return (
-    <div className="space-y-4 px-2 w-full max-w-full">
+    <div className="space-y-2 px-2 w-full max-w-full">
       <Card className="w-full max-w-full">
         <CardHeader>
           <CardTitle className="text-base">Find the Route</CardTitle>

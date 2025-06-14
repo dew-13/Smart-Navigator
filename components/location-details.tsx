@@ -81,20 +81,7 @@ export function LocationDetails({ location, locationId }: LocationDetailsProps) 
           </div>
         </div>
       </CardContent>
-      <CardFooter className="flex justify-between">
-        <Button variant="outline" size="sm" className="gap-1">
-          <Navigation className="h-4 w-4" />
-          Navigate
-        </Button>
-        <Button variant="outline" size="sm" className="gap-1">
-          <Share2 className="h-4 w-4" />
-          Share
-        </Button>
-        <Button variant="outline" size="sm" className="gap-1">
-          <Plus className="h-4 w-4" />
-          Save
-        </Button>
-      </CardFooter>
+    
     </Card>
   )
 }
