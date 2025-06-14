@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
-import { Navigation, Plus, Share2, ArrowRight, Trash2 } from "lucide-react"
+import { Navigation, Share2, ArrowRight, Trash2 } from "lucide-react"
 import { locations, type Location } from "./map-container"
 
 interface Route {
@@ -30,7 +30,7 @@ interface RoutesListProps {
   onDeleteRoute?: (id: number | string) => void
 }
 
-export function RoutesList({ routes, userRole, onLocationSelect, onFindRoute, fromValue, toValue, onFromChange, onToChange, onClearRoute, onDeleteRoute }: RoutesListProps) {
+export function RoutesList({ routes, userRole, onFindRoute, fromValue, toValue, onFromChange, onToChange, }: RoutesListProps) {
   const [fromDropdown, setFromDropdown] = useState(false)
   const [toDropdown, setToDropdown] = useState(false)
   const [showConfirm, setShowConfirm] = useState<null | number | string>(null)
@@ -44,12 +44,10 @@ export function RoutesList({ routes, userRole, onLocationSelect, onFindRoute, fr
   const handleFromSelect = (id: string) => {
     onFromChange(id)
     setFromDropdown(false)
-    onLocationSelect && onLocationSelect(id, "from")
   }
   const handleToSelect = (id: string) => {
     onToChange(id)
     setToDropdown(false)
-    onLocationSelect && onLocationSelect(id, "to")
   }
 
   const handleShare = async (route: Route) => {
@@ -127,7 +125,7 @@ export function RoutesList({ routes, userRole, onLocationSelect, onFindRoute, fr
           <Button
             type="button"
             className="gap-2 bg-red-500 text-white hover:bg-red-600 px-4 py-2 rounded"
-            onClick={() => { onFromChange(""); onToChange(""); onClearRoute && onClearRoute(); }}
+            onClick={() => { onFromChange(""); onToChange(""); }}
           >
             <Trash2 className="h-4 w-4" />
             Clear Route
@@ -176,7 +174,7 @@ export function RoutesList({ routes, userRole, onLocationSelect, onFindRoute, fr
                   <div className="bg-white rounded shadow-lg p-4 flex flex-col items-center gap-3 border">
                     <p className="text-sm text-gray-800">Are you sure you want to delete this route?</p>
                     <div className="flex gap-2 mt-2">
-                      <Button size="sm" className="bg-red-500 text-white hover:bg-red-600" onClick={() => { onDeleteRoute && onDeleteRoute(route.id); setShowConfirm(null); }}>Confirm</Button>
+                      <Button size="sm" className="bg-red-500 text-white hover:bg-red-600" onClick={() => { setShowConfirm(null); }}>Confirm</Button>
                       <Button size="sm" variant="outline" onClick={() => setShowConfirm(null)}>Cancel</Button>
                     </div>
                   </div>

@@ -18,7 +18,7 @@ export default function SmartCampusNavigator() {
   const [activeView, setActiveView] = useState<"map" | "details" | "routes" | "history">("map")
   const [selectedLocation, setSelectedLocation] = useState<string | null>(null)
   const [userRole, setUserRole] = useState<"student" | "staff" | "visitor">("student")
-  const [savedRoutes, setSavedRoutes] = useState<Array<{
+  const [, setSavedRoutes] = useState<Array<{
     id: string
     from: string
     to: string
@@ -103,13 +103,12 @@ export default function SmartCampusNavigator() {
         userRole={userRole}
         onRoleChange={setUserRole}
         onNavigateToLocation={setSelectedLocation}
-        savedRoutes={savedRoutes}
+
         routeFrom={routeFrom}
         routeTo={routeTo}
         setRouteFrom={setRouteFrom}
         setRouteTo={setRouteTo}
-        onDeleteRoute={handleDeleteRoute}
-      />
+        onDeleteRoute={handleDeleteRoute} savedRoutes={[]}      />
 
       {/* Main Content */}
       <main className="flex-1 overflow-hidden pt-16 pb-12">

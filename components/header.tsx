@@ -1,6 +1,7 @@
+/* eslint-disable @next/next/no-img-element */
 "use client"
 
-import { Map } from "lucide-react"
+
 
 export function Header() {
   return (

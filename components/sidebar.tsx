@@ -28,7 +28,7 @@ interface SidebarProps {
   routeTo: string | null
   setRouteFrom: (id: string | null) => void
   setRouteTo: (id: string | null) => void
-  savedRoutes: any[]
+  savedRoutes: never[]
   onDeleteRoute?: (id: string | number) => void
 }
 
@@ -39,7 +39,7 @@ export function Sidebar({
   setActiveView,
   selectedLocation,
   userRole,
-  onRoleChange,
+
   onNavigateToLocation,
   routeFrom,
   routeTo,
@@ -48,12 +48,11 @@ export function Sidebar({
   savedRoutes,
   onDeleteRoute,
 }: SidebarProps) {
-  const [accessibilityMode, setAccessibilityMode] = useState(false)
+
   const [quickAccessList, setQuickAccessList] = useState<string[]>([])
   const [quickAccessTitle, setQuickAccessTitle] = useState<string>("")
 
-  // Map sidebar/search keys to map location IDs
-  const locationIdMap: Record<string, string> = {}
+  
 
   const getLocationData = (id: string | null) => {
     if (!id) return null
@@ -160,27 +159,6 @@ export function Sidebar({
     return locations[id as keyof typeof locations]
   }
 
-  const getRouteHistory = () => {
-    const history = {
-      student: [
-        { id: 1, date: "May 20, 2025",  path: ["Side Gate", "Dalian", "Wulfruna", "ZENITH Building"], time: "9:30 AM" },
-        { id: 2, date: "May 19, 2025",  path: ["Side Gate", "Dalian", "Wulfruna", "ZENITH Building"], time: "12:15 PM" },
-        { id: 3, date: "May 18, 2025",  path: ["Side Gate", "Dalian", "Wulfruna", "ZENITH Building"], time: "2:45 PM" },
-        { id: 4, date: "May 17, 2025",  path: ["Side Gate", "Dalian", "Wulfruna", "ZENITH Building"], time: "6:20 PM" },
-      ],
-      staff: [
-        { id: 1, date: "May 20, 2025",  path: ["Side Gate", "Dalian", "Wulfruna", "ZENITH Building"], time: "8:15 AM" },
-        { id: 2, date: "May 19, 2025",  path: ["Side Gate", "Dalian", "Wulfruna", "ZENITH Building"], time: "10:30 AM" },
-        { id: 3, date: "May 18, 2025",  path: ["Side Gate", "Dalian", "Wulfruna", "ZENITH Building"], time: "1:00 PM" },
-      ],
-      visitor: [
-        { id: 1, date: "May 20, 2025",  path: ["Side Gate", "Dalian", "Wulfruna", "ZENITH Building"], time: "10:00 AM" },
-        { id: 2, date: "May 20, 2025",  path: ["Side Gate", "Dalian", "Wulfruna", "ZENITH Building"], time: "11:30 AM" },
-      ],
-    }
-
-    return history[userRole]
-  }
 
   return (
     <div

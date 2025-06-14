@@ -123,7 +123,7 @@ export function RouteOptimizer({ locations, crowdData, onRouteSelect }: RouteOpt
 
           <div>
             <label className="text-sm font-medium mb-2 block">Route Preference</label>
-            <Select value={routePreference} onValueChange={(value: any) => setRoutePreference(value)}>
+            <Select value={routePreference} onValueChange={(value: never) => setRoutePreference(value)}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>

@@ -1,11 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client"
 
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
-import { Clock, Navigation, Share2, Plus, TrendingUp } from "lucide-react"
+import { Clock,  TrendingUp } from "lucide-react"
 import { CrowdLevelIndicator } from "@/components/crowd-level-indicator"
 import { useCrowdData } from "@/hooks/use-crowd-data"
 import { CrowdTrend } from "@/components/crowd-trend"

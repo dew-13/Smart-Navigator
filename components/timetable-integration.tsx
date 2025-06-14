@@ -1,4 +1,4 @@
-"use client"
+/* "use client"
 
 import { useState, useEffect, useMemo } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -82,7 +82,7 @@ export function TimetableIntegration({ userRole, onNavigateToClass }: TimetableI
       return staffSchedule[today] || []
     }
     return []
-  }, [currentTime.getDay(), userRole]) // Only depend on day and userRole
+  }, [currentTime, userRole]) // Only depend on day and userRole
 
   // Find next class when currentTime or schedule changes
   useEffect(() => {
@@ -128,7 +128,7 @@ export function TimetableIntegration({ userRole, onNavigateToClass }: TimetableI
       <CardHeader>
         <CardTitle className="text-base flex items-center gap-2 text-gray-900">
           <BookOpen className="h-5 w-5" />
-          Today's Schedule
+          Today&apos;s Schedule
         </CardTitle>
         <CardDescription className="text-gray-700">
           {userRole === "student" ? "Your class schedule" : "Your teaching schedule"}
@@ -259,3 +259,4 @@ export function TimetableIntegration({ userRole, onNavigateToClass }: TimetableI
     </Card>
   )
 }
+ */

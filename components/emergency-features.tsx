@@ -11,7 +11,7 @@ interface EmergencyFeaturesProps {
   onNavigateToEmergency: (locationId: string) => void
 }
 
-export function EmergencyFeatures({ currentLocation, onNavigateToEmergency }: EmergencyFeaturesProps) {
+export function EmergencyFeatures({ onNavigateToEmergency }: EmergencyFeaturesProps) {
   const [emergencyActive, setEmergencyActive] = useState(false)
 
   const emergencyContacts = [

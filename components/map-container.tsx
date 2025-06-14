@@ -2,20 +2,16 @@
 
 import { useState, useEffect, useRef } from "react"
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
 import { Card } from "@/components/ui/card"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import {
   Map,
-  Navigation2,
   Users,
-  Clock,
-  Calendar,
-  Droplets,
+ 
   ShipWheelIcon as Wheelchair,
-  Share2,
+ 
   Info,
-  Layers,
+ 
   Route,
   Trash2,
   Save,
@@ -91,12 +87,12 @@ const locations: Location[] = [
 export { locations };
 export type { Location };
 
-export function MapContainer({ selectedLocation, userRole, activeView, routeFromProp, routeToProp, onSaveRoute }: MapContainerProps) {
+export function MapContainer({ selectedLocation,  routeFromProp, routeToProp, onSaveRoute }: MapContainerProps) {
   const [isLoading, setIsLoading] = useState(true)
   // const [weatherCondition, setWeatherCondition] = useState<"sunny" | "rainy" | "cloudy">("sunny")
   const [timeOfDay, setTimeOfDay] = useState<"morning" | "afternoon" | "evening">("morning")
-  const [showHeatmap, setShowHeatmap] = useState(false)
-  const [showRoutes, setShowRoutes] = useState(false)
+  const [showHeatmap] = useState(false)
+
   const [routeFrom, setRouteFrom] = useState<string | null>(null)
   const [routeTo, setRouteTo] = useState<string | null>(null)
   const [optimizedRoute, setOptimizedRoute] = useState<string[] | null>(null)
